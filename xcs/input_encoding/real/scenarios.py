@@ -5,6 +5,7 @@ __author__ = 'Luis Da Costa'
 
 __all__ = [
     'MUXProblem',
+    'ExploitTrackingScenarioObserver',
 ]
 
 import pathlib
@@ -115,7 +116,7 @@ class MUXProblem(Scenario):
         index_as_bitstring = ''.join([ str(round(situation[i])) for i in range(self.address_size) ])
         return int(index_as_bitstring, 2)
 
-    def execute(self, action):
+    def execute(self, action, **kwargs):
         """Execute the indicated action within the environment and
         return the resulting immediate reward dictated by the reward
         program.
@@ -155,22 +156,26 @@ class MUXProblem(Scenario):
         return self.remaining_cycles > 0
 
 
-class MUXScenarioObserver(ScenarioObserver):
+class ExploitTrackingScenarioObserver(ScenarioObserver):
 
-    def __init__(self, wrapped, feedback_dir: str):
+    def __init__(self, wrapped, max_exploit_problems: int, feedback_dir: str):
         # Ensure that the wrapped object implements the same interface
         assert isinstance(wrapped, Scenario)
 
         ScenarioObserver.__init__(self, wrapped)
         self.latest_feedback_time = None  # when was the last time I gave feedback to the user
+        self.max_exploit_problems = max_exploit_problems
         self.feedback_dir = feedback_dir
         pathlib.Path(self.feedback_dir).mkdir(parents=True, exist_ok=True)
+        self.logger.info("Will leave trace of this run on directory '%s'" % (self.feedback_dir))
         # let's keep 'number of success(es) on "exploit" problems' as a measure of performance
         self.window_length = 50  # in number of steps. 50 == taken in https://pdfs.semanticscholar.org/6777/624d3a7230742d1b8f6bc5f8a43d6daf065d.pdf?_ga=2.120249934.77113088.1523040926-378861627.1523040926
         self.latest_exploit_rewards = queue.Queue(maxsize=self.window_length)
         self.num_latest_success = 0  # number of successes in current window
         self.num_exploits = 0  # how many 'exploit'ation problems have I seen
         self.success_per_period = []  # history of successes per window.
+        self.prediction_error_per_period = []  # history of errors per window.
+        self.sum_predicted_error = 0  # sum of errors in current window
 
     def _get_free_file_name(self, root: str, ext: str) -> str:
         fcounter = 1
@@ -192,7 +197,10 @@ class MUXScenarioObserver(ScenarioObserver):
         self.logger.debug('Executing action: %s', action)
         if 'is_exploit' not in kwargs:
             raise RuntimeError("execute: need to know if this action came from exploitation or exploration")
+        if 'predicted_reward' not in kwargs:
+            raise RuntimeError("execute: need to know the prediction made by this action")
         is_exploit = kwargs['is_exploit']
+        predicted_reward = kwargs['predicted_reward']
         reward = self.wrapped.execute(action)
         if reward is not None:
             self.total_reward += reward
@@ -201,10 +209,14 @@ class MUXScenarioObserver(ScenarioObserver):
                 if self.latest_exploit_rewards.full():
                     # dump this value
                     self.success_per_period.append(self.num_latest_success)
+                    self.prediction_error_per_period.append(self.sum_predicted_error)
                     # update statistics
-                    old_reward = self.latest_exploit_rewards.get()
+                    old_reward, old_predicted_reward_error = self.latest_exploit_rewards.get()
                     self.num_latest_success -= 1 if old_reward > 0 else 0
-                self.latest_exploit_rewards.put(reward)
+                    self.sum_predicted_error -= old_predicted_reward_error
+                error_on_prediction = abs(predicted_reward - reward)
+                self.latest_exploit_rewards.put((reward, error_on_prediction))
+                self.sum_predicted_error += error_on_prediction
                 self.num_latest_success += 1 if reward > 0 else 0
         self.steps += 1
 
@@ -233,7 +245,7 @@ class MUXScenarioObserver(ScenarioObserver):
             A bool indicating whether additional situations remain in the
             current run.
         """
-        more = (self.num_exploits <= 10000)  # self.wrapped.more()# TODO more
+        more = self.wrapped.more() or (self.num_exploits <= self.max_exploit_problems)
         current_time = time.time()
         if self.latest_feedback_time is None or (current_time - self.latest_feedback_time >= 5):  # seconds between feedback
             self.latest_feedback_time = current_time
@@ -241,7 +253,7 @@ class MUXScenarioObserver(ScenarioObserver):
             self.logger.info('Average reward per step: %.5f',
                              self.total_reward / (self.steps or 1))
             succ_abs, succ_perc = self.exploit_successes_on_window
-            self.logger.debug('[exploit trials so far: %d] Num successes on latest tries: %d (perc success of %.5f)',
+            self.logger.info('[exploit trials so far: %d] Num successes on latest tries: %d (perc success of %.5f)',
                               self.num_exploits, succ_abs, succ_perc)
         if not more:
             self.logger.info('Run completed.')
@@ -253,10 +265,16 @@ class MUXScenarioObserver(ScenarioObserver):
             # save successes to disk:
             import pickle
 
-            with open(self._get_free_file_name(root="exploit_successes", ext="txt"), 'wb') as fp:
+            exploit_success_file = self._get_free_file_name(root="exploit_successes", ext="txt")
+            with open(exploit_success_file, 'wb') as fp:
                 pickle.dump(self.success_per_period, fp)
-            self.logger.info("Successes on 'exploit' problems saved on directory %s" % (self.feedback_dir))
+            self.logger.info("Successes on 'exploit' problems saved on file '%s'" % (exploit_success_file))
+            error_on_prediction_file = self._get_free_file_name(root="error_on_prediction", ext="txt")
+            with open(error_on_prediction_file, 'wb') as fp:
+                pickle.dump(self.prediction_error_per_period, fp)
+            self.logger.info("Errors on predicted rewards saved on file '%s'" % (error_on_prediction_file))
         return more
+
 
 if __name__ == "__main__":
 
@@ -266,11 +284,17 @@ if __name__ == "__main__":
     # or:
     # logging.root.setLevel(logging.INFO)
 
+    max_exploit_problems = 10000
+    pop_size = 15000
+    address_bits_number = 3
     # Create the scenario instance
-    mux_problem = MUXProblem(training_cycles=14000, address_size=2)
+    mux_problem = MUXProblem(training_cycles=2 * max_exploit_problems, address_size=address_bits_number)
 
     # Wrap the scenario instance in an observer so progress gets logged,
-    mux_scenario = MUXScenarioObserver(mux_problem, feedback_dir="/tmp/luis/tests")
+    mux_scenario = ExploitTrackingScenarioObserver(
+        mux_problem,
+        max_exploit_problems=max_exploit_problems,
+        feedback_dir="/tmp/luis/tests/multi/%d/%d" % (address_bits_number, pop_size))
     # mux_scenario = ScenarioObserver(mux_problem)
     # and pass it on to the test() function.
     # xcs.test(scenario=bowling_scenario)
@@ -278,7 +302,7 @@ if __name__ == "__main__":
 
     algorithm = XCSAlgorithm()
     # parameters as of original paper:
-    algorithm.max_population_size = 800          # N
+    algorithm.max_population_size = pop_size          # N
     algorithm.learning_rate = .2                # beta
     algorithm.accuracy_coefficient = .1          # alpha # page 5 of http://eprints.uwe.ac.uk/5887/1/106365603322365315.pdf
     algorithm.error_threshold = 10              # epsilon_0

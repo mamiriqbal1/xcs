@@ -1106,7 +1106,7 @@ class ClassifierSet:
 
             # Perform the selected action
             # and find out what the received reward was.
-            reward = scenario.execute(match_set.selected_action, is_exploit=is_exploit)
+            reward = scenario.execute(match_set.selected_action, is_exploit=is_exploit, predicted_reward=match_set.prediction)
 
             # If the scenario is dynamic, don't immediately apply the
             # reward; instead, wait until the next iteration and factor in
