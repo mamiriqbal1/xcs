@@ -1,5 +1,8 @@
 .idea/
 
+**/.DS_Store
+**/*~
+
 # Test data (excluded for now)
 test_data/
 
