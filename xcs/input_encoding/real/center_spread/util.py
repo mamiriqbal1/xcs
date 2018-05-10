@@ -12,8 +12,11 @@ class EncoderDecoder(real.EncoderDecoder):
     def __init__(self, min_value: float, max_value: float, encoding_bits: int):
         assert max_value >= min_value
         assert encoding_bits >= 1
-        self.extremes = (min_value, max_value)
+        self.extremes = (float(min_value), float(max_value))
         self.encoding_bits = encoding_bits
+
+    def __str__(self):
+        return "Encoder, %d bits, in [%.2f,%.2f]" % (self.encoding_bits, self.extremes[0], self.extremes[1])
 
     def random(self) -> float:
         return random() * (self.extremes[1] - self.extremes[0]) + self.extremes[0]
@@ -52,6 +55,15 @@ class EncoderDecoder(real.EncoderDecoder):
         """Mutates a bitstring encoded with this specific encoder, by a certain factor (in [0,1])"""
         return self.encode(self.mutate_float(self.decode(b), factor))
 
+    def is_in_interval(self, a_value) -> bool:
+        """Returns true if the value is in interval defined by this encoder."""
+        return (a_value >= self.extremes[0]) and (a_value <= self.extremes[1])
+
+    def min_distance_to_ends(self, a_value: float) -> float:
+        """Minimum of distances to either ends."""
+        assert self.is_in_interval(a_value)
+        return min(a_value - self.extremes[0], self.extremes[1] - a_value)
+
 
 def random_in(bottom: float, top: float) -> float:
     """Returns random value in interval"""
@@ -60,3 +72,15 @@ def random_in(bottom: float, top: float) -> float:
     bottom = min(bottom, top)
     top = max(bottom, top)
     return random() * (top - bottom) + bottom
+
+
+def add_and_rebound(v: float, delta: float, m: float, M: float) -> float:
+    """Rebound from walls."""
+    mutated_v = v + delta
+    if mutated_v > M:
+        return 2 * M - mutated_v
+    elif mutated_v < m:
+        return 2 * m - mutated_v
+    else:
+        return mutated_v
+

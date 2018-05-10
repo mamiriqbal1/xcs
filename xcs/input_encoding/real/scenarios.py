@@ -109,7 +109,7 @@ class MUXProblem(Scenario):
         """
         self.current_situation = [self.real_translator.random()
                                   for _ in range(self.address_size + int(math.pow(2, self.address_size)))]
-        self.current_situation = BitStringRealEncoded(encoder=self.real_translator, reals=self.current_situation)
+        self.current_situation = BitStringRealEncoded(encoders=self.real_translator, reals=self.current_situation)
         return self.current_situation
 
     def get_index_from_situation(self, situation) -> int:
@@ -285,8 +285,8 @@ if __name__ == "__main__":
     # logging.root.setLevel(logging.INFO)
 
     max_exploit_problems = 10000
-    pop_size = 15000
-    address_bits_number = 3
+    pop_size = 1800
+    address_bits_number = 2
     # Create the scenario instance
     mux_problem = MUXProblem(training_cycles=2 * max_exploit_problems, address_size=address_bits_number)
 

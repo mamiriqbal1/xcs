@@ -23,3 +23,4 @@ class TestBitString(unittest.TestCase):
                 condition = situation.cover(wildcard_probability=.33)
                 print(condition)
                 self.assertTrue(condition(situation))
+

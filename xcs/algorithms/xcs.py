@@ -595,11 +595,11 @@ class XCSAlgorithm(LCSAlgorithm):
         # crossover operator to the parents. Otherwise, just take the
         # parents unchanged.
         if random.random() < self.crossover_probability:
-            # print("Choosing to crossover from set size = %d" % (len(list(action_set))))
+            # print("###################################################################### Choosing to crossover from set size = %d" % (len(list(action_set))))
             # print(action_set.model)
             condition1, condition2 = parent1.condition.crossover_with(
                 parent2.condition,
-                2
+                2 if len(parent1.condition) > 2 else 1
             )
         else:
             condition1, condition2 = parent1.condition, parent2.condition

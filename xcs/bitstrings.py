@@ -160,7 +160,7 @@ class BitStringBase(metaclass=ABCMeta):
 
     @classmethod
     @abstractmethod
-    def crossover_template(cls, length, block_size, points):
+    def crossover_template(cls, length, points):
         """Create a crossover template with the given number of points. The
         crossover template can be used as a mask to crossover two
         bitstrings of the same length.
@@ -789,7 +789,7 @@ class BitCondition(BitConditionBase):
         assert isinstance(other, BitCondition)
         assert len(self) == len(other)
 
-        template = BitString.crossover_template(len(self), block_size, points)
+        template = BitString.crossover_template(len(self), points)
         inv_template = ~template
 
         bits1 = (self._bits & template) | (other._bits & inv_template)

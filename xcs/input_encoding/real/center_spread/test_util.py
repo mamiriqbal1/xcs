@@ -2,7 +2,7 @@ import unittest
 import math
 
 from random import random, sample, choice
-from xcs.input_encoding.real.center_spread.util import EncoderDecoder
+from xcs.input_encoding.real.center_spread.util import EncoderDecoder, add_and_rebound, random_in
 
 
 class UnitTestUtil(unittest.TestCase):
@@ -44,3 +44,15 @@ class UnitTestUtil(unittest.TestCase):
                 self.assertTrue(
                     current_spread <= max_spread,
                     "Spread ~ %.2f, but max spread = (%.2f - %.2f)*%.2f ~ %.2f" % (current_spread, M, m, factor, max_spread))
+
+    def test_rebound(self):
+        """Rebounding from walls of intervals."""
+        for _ in range(100):
+            x1 = random_in(-100, 100)
+            x2 = random_in(-100, 100)
+            the_min = min(x1, x2)
+            the_max = max(x1, x2)
+            v = random_in(the_min, the_max)
+            delta = random_in(0, the_max - the_min)
+            r = add_and_rebound(v, delta, the_min, the_max)
+            self.assertTrue((r >= the_min) and (r <= the_max))
