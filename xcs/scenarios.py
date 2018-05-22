@@ -92,6 +92,7 @@ __all__ = [
 
 import logging
 import random
+from typing import Optional
 from abc import ABCMeta, abstractmethod
 
 from . import numpy
@@ -448,11 +449,14 @@ class ScenarioObserver(Scenario):
         wrapped: The Scenario instance to be observed.
     """
 
-    def __init__(self, wrapped):
+    def __init__(self, wrapped, alogger: Optional[logging.Logger] = None):
         # Ensure that the wrapped object implements the same interface
         assert isinstance(wrapped, Scenario)
 
-        self.logger = logging.getLogger(__name__)
+        if alogger is None:
+            self.logger = logging.getLogger(__name__)
+        else:
+            self.logger = alogger
         self.wrapped = wrapped
         self.total_reward = 0
         self.steps = 0
