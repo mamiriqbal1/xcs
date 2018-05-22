@@ -14,7 +14,8 @@ class BitConditionRealEncoding(BitConditionBase):
         result = CoreBitString('')
         for ((center, spread), encoder) in zip(center_spreads, self.real_translators):
             result += encoder.encode(center)
-            result += encoder.encode(spread)
+            spread_encoder = EncoderDecoder(min_value=0, max_value=encoder.extremes[1] - encoder.extremes[0], encoding_bits=encoder.encoding_bits)
+            result += spread_encoder.encode(spread)
         return result
 
     def __init__(self, encoders: Union[EncoderDecoder, List[EncoderDecoder]], center_spreads: List[Tuple[float, float]], mutation_strength: float, mutation_prob: float):
@@ -271,7 +272,6 @@ class BitConditionRealEncoding(BitConditionBase):
     def mutate(self, situation):
         # return self.mutate_as_in_paper(situation)
         return self.mutate_ints2(situation)
-
 
     def crossover_with(self, other, points):
         """Perform 2-point crossover on this bit condition and another of

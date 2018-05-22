@@ -82,3 +82,12 @@ def append_to_git_root(what: str, alternate_root: str) -> str:
         return os.path.join(git_root, what)
 
 
+def get_free_file_name(a_dir: str, root: str, ext: str) -> str:
+    """Finds a file name that hasn't been used."""
+    fcounter = 1
+    fname = os.path.join(a_dir, "%s_%d.%s" % (root, fcounter, ext))
+    while os.path.isfile(fname):
+        fcounter += 1
+        fname = os.path.join(a_dir, "%s_%d.%s" % (root, fcounter, ext))
+    return fname
+

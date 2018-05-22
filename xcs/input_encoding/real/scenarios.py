@@ -11,19 +11,18 @@ __all__ = [
 import pathlib
 import math
 import queue
-import os
-from typing import Tuple
+import logging
+import time
 
+from typing import Tuple, Optional
+
+from util.general import get_free_file_name
 from xcs.scenarios import Scenario
 from xcs.input_encoding.real.center_spread.util import EncoderDecoder
 from xcs.input_encoding.real.center_spread.bitstrings import BitString as BitStringRealEncoded
-import logging
 from xcs.algorithms.xcs import XCSAlgorithm
 from xcs.framework import ClassifierSet
-
 from xcs.scenarios import ScenarioObserver
-
-import time
 
 
 class MUXProblem(Scenario):
@@ -158,11 +157,11 @@ class MUXProblem(Scenario):
 
 class ExploitTrackingScenarioObserver(ScenarioObserver):
 
-    def __init__(self, wrapped, max_exploit_problems: int, feedback_dir: str):
+    def __init__(self, wrapped, alogger: Optional[logging.Logger], max_exploit_problems: int, feedback_dir: str):
         # Ensure that the wrapped object implements the same interface
         assert isinstance(wrapped, Scenario)
 
-        ScenarioObserver.__init__(self, wrapped)
+        ScenarioObserver.__init__(self, wrapped, alogger=alogger)
         self.latest_feedback_time = None  # when was the last time I gave feedback to the user
         self.max_exploit_problems = max_exploit_problems
         self.feedback_dir = feedback_dir
@@ -178,12 +177,7 @@ class ExploitTrackingScenarioObserver(ScenarioObserver):
         self.sum_predicted_error = 0  # sum of errors in current window
 
     def _get_free_file_name(self, root: str, ext: str) -> str:
-        fcounter = 1
-        fname = os.path.join(self.feedback_dir, "%s_%d.%s" % (root, fcounter, ext))
-        while os.path.isfile(fname):
-            fcounter += 1
-            fname = os.path.join(self.feedback_dir, "%s_%d.%s" % (root, fcounter, ext))
-        return fname
+        return get_free_file_name(self.feedback_dir, root, ext)
 
     @property
     def exploit_successes_on_window(self) -> Tuple[int, float]:
