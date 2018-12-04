@@ -3,8 +3,8 @@ __author__ = 'Aaron Hosford'
 import logging
 import unittest
 
-import xcs
-from xcs.scenarios import MUXProblem, HaystackProblem
+from .. import xcs
+from ..xcs.scenarios import MUXProblem, HaystackProblem
 
 
 class TestXCS(unittest.TestCase):

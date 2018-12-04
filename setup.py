@@ -9,7 +9,7 @@ from setuptools import setup
 from codecs import open
 from os import path
 
-from xcs import __version__
+from .xcs import __version__
 
 here = path.abspath(path.dirname(__file__))
 

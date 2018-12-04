@@ -4,8 +4,8 @@ import unittest
 
 from random import randint
 
-from xcs.input_encoding.real.center_spread.bitstrings import BitConditionRealEncoding, BitString
-from xcs.input_encoding.real.center_spread.util import EncoderDecoder
+from .....xcs.input_encoding.real.center_spread.bitstrings import BitConditionRealEncoding, BitString
+from .....xcs.input_encoding.real.center_spread.util import EncoderDecoder
 
 
 class TestBitString(unittest.TestCase):

@@ -4,9 +4,11 @@ import logging
 import unittest
 
 import math
-import xcs
-import xcs.bitstrings as bitstrings
-import xcs.scenarios
+from .. import xcs
+#import xcs.bitstrings as bitstrings
+from ..xcs import bitstrings as bitstrings
+#import xcs.scenarios
+from ..xcs import scenarios
 
 
 class TestBitString(unittest.TestCase):

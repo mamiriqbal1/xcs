@@ -404,7 +404,7 @@ class BitString(BitStringBase):
         Return:
             A randomly generated BitCondition which matches the given bits.
         """
-        from xcs.bitstrings import BitCondition
+        from ..xcs.bitstrings import BitCondition
 
         bits = self._bits
         if not isinstance(bits, BitString):

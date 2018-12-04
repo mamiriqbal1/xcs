@@ -3,8 +3,8 @@ __author__ = 'Luis Da Costa'
 import unittest
 from random import random, randint, sample
 
-from xcs.input_encoding.real.center_spread.bitstrings import BitConditionRealEncoding, BitString
-from xcs.input_encoding.real.center_spread.util import EncoderDecoder, random_in
+from .....xcs.input_encoding.real.center_spread.bitstrings import BitConditionRealEncoding, BitString
+from .....xcs.input_encoding.real.center_spread.util import EncoderDecoder, random_in
 
 
 class TestBitCondition(unittest.TestCase):

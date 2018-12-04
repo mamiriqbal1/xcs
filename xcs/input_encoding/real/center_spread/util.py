@@ -3,8 +3,8 @@ import math
 from random import random, randint
 from typing import List
 
-from xcs.bitstrings import BitString
-from xcs.input_encoding import real
+from .....xcs.bitstrings import BitString
+from .....xcs.input_encoding import real
 
 
 class EncoderDecoder(real.EncoderDecoder):

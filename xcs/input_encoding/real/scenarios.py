@@ -16,13 +16,13 @@ import time
 
 from typing import Tuple, Optional
 
-from util.general import get_free_file_name
-from xcs.scenarios import Scenario
-from xcs.input_encoding.real.center_spread.util import EncoderDecoder
-from xcs.input_encoding.real.center_spread.bitstrings import BitString as BitStringRealEncoded
-from xcs.algorithms.xcs import XCSAlgorithm
-from xcs.framework import ClassifierSet
-from xcs.scenarios import ScenarioObserver
+from ....util.general import get_free_file_name
+from ....xcs.scenarios import Scenario
+from ....xcs.input_encoding.real.center_spread.util import EncoderDecoder
+from ....xcs.input_encoding.real.center_spread.bitstrings import BitString as BitStringRealEncoded
+from ....xcs.algorithms.xcs import XCSAlgorithm
+from ....xcs.framework import ClassifierSet
+from ....xcs.scenarios import ScenarioObserver
 
 
 class MUXProblem(Scenario):

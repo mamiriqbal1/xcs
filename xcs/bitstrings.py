@@ -94,7 +94,7 @@ __all__ = [
 from abc import ABCMeta, abstractmethod
 import random
 
-import xcs
+from .. import xcs
 
 
 def numpy_is_available():

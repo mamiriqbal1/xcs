@@ -2,7 +2,7 @@
 import random
 import abc
 
-from xcs.input_encoding.real.center_spread.sandbox.bitstrings import BitString
+from ......xcs.input_encoding.real.center_spread.sandbox.bitstrings import BitString
 
 
 class BitCondition(metaclass=abc.ABCMeta):

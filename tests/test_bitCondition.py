@@ -2,7 +2,7 @@ __author__ = 'Aaron Hosford'
 
 import unittest
 
-from xcs.bitstrings import BitString, BitCondition
+from ..xcs.bitstrings import BitString, BitCondition
 
 
 class TestBitCondition(unittest.TestCase):

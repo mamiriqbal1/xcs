@@ -3,8 +3,8 @@ from typing import List, Tuple, Union
 from random import sample, random
 from functools import reduce
 
-from xcs.bitstrings import BitConditionBase, BitString as CoreBitString
-from xcs.input_encoding.real.center_spread.util import EncoderDecoder, random_in,add_and_rebound
+from .....xcs.bitstrings import BitConditionBase, BitString as CoreBitString
+from .....xcs.input_encoding.real.center_spread.util import EncoderDecoder, random_in,add_and_rebound
 
 
 class BitConditionRealEncoding(BitConditionBase):

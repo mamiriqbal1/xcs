@@ -12,7 +12,7 @@ import glob
 import os
 import zipfile
 
-from xcs import __version__
+from .xcs import __version__
 
 import build_readme
 build_readme.build_readme()
