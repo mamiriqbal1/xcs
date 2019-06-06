@@ -466,7 +466,7 @@ class XCSAlgorithm(LCSAlgorithm):
         assert match_set.model.algorithm is self
 
         # Create a new condition that matches the situation.
-        condition = match_set.situation.cover(self.wildcard_probability)
+        condition = match_set.situation.cover(self.wildcard_probability, self.mutation_probability)
 
         # Pick a random action that (preferably) isn't already suggested by
         # some other rule for this situation.
@@ -595,8 +595,6 @@ class XCSAlgorithm(LCSAlgorithm):
         # crossover operator to the parents. Otherwise, just take the
         # parents unchanged.
         if random.random() < self.crossover_probability:
-            # print("###################################################################### Choosing to crossover from set size = %d" % (len(list(action_set))))
-            # print(action_set.model)
             condition1, condition2 = parent1.condition.crossover_with(
                 parent2.condition,
                 2 if len(parent1.condition) > 2 else 1
@@ -604,17 +602,33 @@ class XCSAlgorithm(LCSAlgorithm):
         else:
             condition1, condition2 = parent1.condition, parent2.condition
 
+        # Pick a random action that other than parent 1 action and pass to mutation
+        action_candidates = (
+            frozenset(match_set.model.possible_actions) -
+            frozenset([parent1.action])
+        )
+        if not action_candidates:
+            action_candidates = match_set.model.possible_actions
+        # action = random.choice(list(action_candidates))
         # Apply the mutation operator to each child, randomly flipping
         # their mask bits with a small probability.
-        condition1 = condition1.mutate(action_set.situation)
-        condition2 = condition2.mutate(action_set.situation)
+        condition1, action1 = condition1.mutate(action_set.situation, action_candidates, parent1.action)
+
+        # Pick a random action that other than parent 2 action and pass to mutation
+        action_candidates = (
+            frozenset(match_set.model.possible_actions) -
+            frozenset([parent2.action])
+        )
+        if not action_candidates:
+            action_candidates = match_set.model.possible_actions
+        condition2, action2 = condition2.mutate(action_set.situation, action_candidates, parent2.action)
 
         # If the newly generated children are already present in the
         # population (or if they should be subsumed due to GA subsumption)
         # then simply increment the numerosities of the existing rules in
         # the population.
         new_children = []
-        for condition in condition1, condition2:
+        for condition, action in (condition1, action1), (condition2, action2):
             # If the parameters specify that GA subsumption should be
             # performed, look for an accurate parent that can subsume the
             # new child.
@@ -648,7 +662,7 @@ class XCSAlgorithm(LCSAlgorithm):
             # set in just a moment.
             child = XCSClassifierRule(
                 condition,
-                action_set.action,
+                action,
                 self,
                 action_set.model.time_stamp
             )
@@ -665,10 +679,10 @@ class XCSAlgorithm(LCSAlgorithm):
                 parent2.average_reward
             )
 
-            error = .5 * (parent1.error + parent2.error)
+            error = .25 * .5 * (parent1.error + parent2.error)
 
             # .1 * (average fitness of parents)
-            fitness = .05 * (
+            fitness = .1 * .5 * (
                 parent1.fitness +
                 parent2.fitness
             )

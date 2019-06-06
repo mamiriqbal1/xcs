@@ -582,10 +582,16 @@ class ScenarioObserver(Scenario):
         """
         more = self.wrapped.more()
 
-        if self.steps % 100 == 0:
+        if self.steps % 1000 == 0:
             self.logger.info('Steps completed: %d', self.steps)
             self.logger.info('Average reward per step: %.5f',
                              self.total_reward / (self.steps or 1))
+
+        # if self.steps % self.wrapped.num_situations == 0:
+        #     self.logger.info('Iterations completed: %d of %d', self.steps/self.wrapped.num_situations, self.wrapped.max_iterations)
+        #     self.logger.info('Average reward per step: %.5f',
+        #                      self.total_reward / (self.steps or 1))
+
         if not more:
             self.logger.info('Run completed.')
             self.logger.info('Total steps: %d', self.steps)
