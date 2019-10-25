@@ -1,6 +1,6 @@
 import abc
 
-from ....xcs.bitstrings import BitString
+from xcs.bitstrings import BitString
 
 
 class EncoderDecoder(metaclass=abc.ABCMeta):

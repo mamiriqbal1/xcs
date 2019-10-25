@@ -94,7 +94,7 @@ __all__ = [
 from abc import ABCMeta, abstractmethod
 import random
 
-from .. import xcs
+import xcs
 
 
 def numpy_is_available():
@@ -282,7 +282,7 @@ class BitStringBase(metaclass=ABCMeta):
         raise NotImplementedError()
 
     @abstractmethod
-    def cover(self, wildcard_probability: float):
+    def cover(self, wildcard_probability: float, mutation_prob: float):
         """Returns a condition covering this situation."""
         raise NotImplementedError()
 
@@ -649,7 +649,7 @@ class BitConditionBase(metaclass=ABCMeta):
         raise NotImplementedError()
 
     @abstractmethod
-    def mutate(self, situation):
+    def mutate(self, situation, action_candidates, action):
         """
         Mutates the instance and returns a mutated one.
         :param prob: probability of mutation of every individual element of this bitcondition.
@@ -746,7 +746,7 @@ class BitCondition(BitConditionBase):
         mismatches = self // other
         return not mismatches.any()
 
-    def mutate(self, situation: BitString):
+    def mutate(self, situation, action_candidates=None, action=None):
         """Create a new condition from the given one by probabilistically
         applying point-wise mutations. Bits that were originally wildcarded
         in the parent condition acquire their values from the provided
@@ -767,8 +767,8 @@ class BitCondition(BitConditionBase):
         # the situation.
         if isinstance(situation, xcs.bitstrings.BitCondition):
             mask &= situation.mask
-            return xcs.bitstrings.BitCondition(situation.bits, mask)
-        return xcs.bitstrings.BitCondition(situation, mask)
+            return xcs.bitstrings.BitCondition(situation.bits, mask), action
+        return xcs.bitstrings.BitCondition(situation, mask), action
 
     def crossover_with(self, other, points):
         """Perform 2-point crossover on this bit condition and another of

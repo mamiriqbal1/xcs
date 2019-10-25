@@ -2,8 +2,8 @@ __author__ = 'Aaron Hosford'
 
 import unittest
 
-from ....xcs.input_encoding.real.bitstrings import BitString
-from ....xcs.input_encoding.real.scenarios import MUXProblem
+from xcs.input_encoding.real.bitstrings import BitString
+from xcs.input_encoding.real.scenarios import MUXProblem
 
 
 class TestMUXProblem(unittest.TestCase):

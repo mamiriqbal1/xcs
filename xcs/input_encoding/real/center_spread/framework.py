@@ -1,5 +1,5 @@
 
-from .....xcs.framework import ClassifierSet
+from xcs.framework import ClassifierSet
 
 class ClassifierSetRealConditions(ClassifierSet):
 

@@ -4,7 +4,7 @@ from typing import Optional
 
 from .. import bitstrings
 from ..framework import ClassifierRule, LCSAlgorithm, EpsilonGreedySelectionStrategy, MatchSet, ClassifierSet
-from ...xcs.input_encoding.real.center_spread.util import EncoderDecoder
+from xcs.input_encoding.real.center_spread.util import EncoderDecoder
 
 class XCSClassifierRule(ClassifierRule):
     """This classifier rule subtype is used by the XCS algorithm. The

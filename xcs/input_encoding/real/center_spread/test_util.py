@@ -2,7 +2,7 @@ import unittest
 import math
 
 from random import random, sample, choice
-from .....xcs.input_encoding.real.center_spread.util import EncoderDecoder, add_and_rebound, random_in
+from xcs.input_encoding.real.center_spread.util import EncoderDecoder, add_and_rebound, random_in
 
 
 class UnitTestUtil(unittest.TestCase):

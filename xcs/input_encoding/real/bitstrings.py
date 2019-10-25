@@ -1,8 +1,8 @@
 # from xcs.bitstrings import BitStringBase
 # from xcs.bitstrings import *  # BitString
-from ....xcs._python_bitstrings import BitString
-from ....xcs._python_bitstrings import BitString
-from ....xcs._numpy_bitstrings import BitString as bs1
+from xcs._python_bitstrings import BitString
+from xcs._python_bitstrings import BitString
+from xcs._numpy_bitstrings import BitString as bs1
 
 class RealCarryingBitString(bs1):
 

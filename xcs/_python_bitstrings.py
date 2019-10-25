@@ -388,7 +388,7 @@ class BitString(BitStringBase):
             self._length + other._length
         )
 
-    def cover(self, wildcard_probability: float):
+    def cover(self, wildcard_probability: float, mutation_prob=.03):
         """Create a new bit condition that matches the provided bit string,
         with the indicated per-index wildcard probability.
 
@@ -404,7 +404,7 @@ class BitString(BitStringBase):
         Return:
             A randomly generated BitCondition which matches the given bits.
         """
-        from ..xcs.bitstrings import BitCondition
+        from xcs.bitstrings import BitCondition
 
         bits = self._bits
         if not isinstance(bits, BitString):
